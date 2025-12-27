@@ -1,0 +1,27 @@
+nohup: ignoring input
+[27.12.2025 00:17:00.493] (Daemon) Debug: Daemon created
+Error listing tables: netlink receive: operation not permitted
+[27.12.2025 00:17:00.495] (WireguardUtilsLinux) Info: Setup split tunneling with unified cgroups (v2)
+[27.12.2025 00:17:00.495] (WireguardUtilsLinux) Debug: WireguardUtilsLinux created.
+[27.12.2025 00:17:00.495] (AppTracker) Debug: AppTracker created.
+[27.12.2025 00:17:00.496] (DBusService) Debug: Dropping root permissions
+[27.12.2025 00:17:00.496] (DBusService) Warning: Failed to update process capabilities
+[27.12.2025 00:17:00.496] (main) Debug: Connecting to DBus...
+[27.12.2025 00:17:00.496] (main) Debug: Ready!
+[27.12.2025 00:41:08.389] (DBusService) Debug: Activate
+[27.12.2025 00:41:08.389] (Daemon) Debug: Activating interface.
+[27.12.2025 00:41:08.389] (WireguardUtilsLinux) Error: Adding interface failed: Operation not permitted
+[27.12.2025 00:41:08.389] (Daemon) Error: Interface creation failed.
+[27.12.2025 00:43:20.752] (SignalHandler) Debug: Signal 15
+[27.12.2025 00:43:20.753] (DBusService) Debug: Deactivate
+[27.12.2025 00:43:20.753] (DBusService) Debug: Clearing excluded app list
+[27.12.2025 00:43:20.753] (WireguardUtilsLinux) Info: Permitting traffic from all cgroups
+[27.12.2025 00:43:20.753] (NetfilterGo) Debug: Clearing all cgroup traffic marks
+panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x10 pc=0x5561d731ecbc]
+
+goroutine 17 [running, locked to thread]:
+github.com/google/nftables.(*Conn).FlushChain(0x5561d9007588, 0x0)
+	github.com/google/nftables@v0.0.0-20220611213346-a346d51f53b3/chain.go:162 +0x9c
+main.NetfilterResetAllCgroupsV2()
+	github.com/mozilla-mobile/mozilla-vpn-client/src/platforms/linux/netfilter/netfilter.go:946 +0x86
